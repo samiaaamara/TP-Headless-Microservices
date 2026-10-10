@@ -1,0 +1,33 @@
+
+services:
+  backend:
+    build:
+      context: ./backend-accessoires
+    container_name: phonetech-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend-accessoires/.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 1337
+      DATABASE_CLIENT: sqlite
+      DATABASE_FILENAME: .tmp/data.db
+    ports:
+      - "1337:1337"
+    volumes:
+      - ./backend-accessoires/.tmp:/app/.tmp
+      - ./backend-accessoires/public/uploads:/app/public/uploads
+
+  frontend:
+    build:
+      context: ./frontend-vitrine
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:1337
+    container_name: phonetech-frontend
+    restart: unless-stopped
+    environment:
+      STRAPI_INTERNAL_URL: http://backend:1337
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
